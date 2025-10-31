@@ -9,9 +9,12 @@ export function useReceiveNotification(
   onMessage: (msg: any) => void
 ) {
   useEffect(() => {
-    if (!userID || !token) return;
+  if (!userID || !token) return;
 
-    const socket = startWebSocket(userID, token);
+  let socket: WebSocket | null = null;
+
+  const initWebSocket = async () => {
+    socket = await startWebSocket(userID, token); // ✅ awaitでPromiseを解決
 
     socket.onmessage = (event) => {
       try {
@@ -22,9 +25,13 @@ export function useReceiveNotification(
         console.error("JSON parse error:", err);
       }
     };
+  };
 
-    return () => {
-      socket.close();
-    };
-  }, [userID, token, onMessage]);
+  initWebSocket();
+
+  return () => {
+    socket?.close(); // ✅ 安全に呼び出し
+  };
+}, [userID, token, onMessage]);
+
 }

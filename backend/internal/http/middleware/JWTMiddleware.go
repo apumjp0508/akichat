@@ -67,6 +67,7 @@ func JWTMiddleware() gin.HandlerFunc {
                 c.Abort()
                 return
             }
+            fmt.Printf("token ok")
             c.Next()
         } else {
             c.JSON(401, gin.H{"error": "トークンが無効または期限切れ"})

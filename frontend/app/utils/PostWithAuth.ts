@@ -4,6 +4,7 @@ import { fetchWithAuth } from "./fetchWithAuth";
 export async function postWithAuth<T = any>(url: string, payload: any): Promise<T> {
   const res = await fetchWithAuth(url, {
     method: "POST",
+    credentials: "include",
     headers: {
       "Content-Type": "application/json",
     },

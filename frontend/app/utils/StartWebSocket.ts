@@ -2,12 +2,13 @@ import { fetchWithAuth } from "./fetchWithAuth";
 
 export const startWebSocket = async(userID: number,token: string) => {
 
-  await fetchWithAuth("/api/websocket/init", {
+  await fetchWithAuth("http://localhost:8080/api/websocket/init", {
     method:"POST",
     credentials: "include",
   });
 
-  const ws = new WebSocket("ws://localhost:8080/api/websocket");
+  //websocket/initでtoken認証は済ませているからここではsession認証だけでいい
+  const ws = new WebSocket("ws://localhost:8080/api/session/websocket");
 
   ws.onopen = () => {
     console.log("✅ WebSocket接続成功");

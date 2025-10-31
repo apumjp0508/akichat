@@ -51,6 +51,18 @@ func (h *Hub) Unregister(userID uint) {
 	}
 }
 
+// 接続中の全ユーザーIDを返す
+func (h *Hub) GetConnectedUsers() []uint {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	userIDs := make([]uint, 0, len(h.Clients))
+	for id := range h.Clients {
+		userIDs = append(userIDs, id)
+	}
+	return userIDs
+}
+
 // 特定ユーザーに通知を送る
 func (h *Hub) NotifyUser(requestUserID uint, userID uint, message string) error {
 	h.mu.Lock()

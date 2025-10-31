@@ -1,6 +1,7 @@
 package session
 
 import (
+	"fmt"
 	"net/http"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -11,6 +12,7 @@ func SetupSessionHandler(c *gin.Context) {
 
 	userID, exists := c.Get("userID")
 	if !exists {
+		fmt.Println("userid is invalid")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
@@ -19,9 +21,12 @@ func SetupSessionHandler(c *gin.Context) {
 	session.Set("websocket_allowed", true)
 	session.Set("user_id", userID)
 	if err := session.Save(); err != nil {
+		fmt.Println("session is invalid")
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "session save error"})
 		return
 	}
+
+	fmt.Printf("session: %d",session)
 
 	c.JSON(http.StatusOK, gin.H{"message": "WebSocket allowed"})
 }

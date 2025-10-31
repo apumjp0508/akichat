@@ -2,7 +2,6 @@ package router
 
 import (
     "fmt"
-    "net/http"
     wsHandler "akichat/backend/internal/handler/webSocket"
     UserHandler "akichat/backend/internal/handler/userHandler"
     middleware "akichat/backend/internal/http/middleware"
@@ -23,7 +22,7 @@ func SetupRouter() *gin.Engine {
 
 	database, err := db.InitDB()
     if err != nil {
-        fmt.Println("DB接続エラー:", err)
+        fmt.Printf("db接続失敗")
     }
 
     cfg := config.Load()
@@ -67,14 +66,16 @@ func SetupRouter() *gin.Engine {
     auth.Use(middleware.JWTMiddleware())
     {
         auth.POST("/websocket/init", sessionHandler.SetupSessionHandler)
-        auth.Use(middleware.SessionMiddleware()){
-            auth.GET("websocket", wsHandler.WebSocketHandler)
-        }
+        auth.GET("/connected-users", wsHandler.GetConnectedUsersHandler)
         auth.GET("/profile", profileHandler.ProfileHandler)
         auth.GET("/fetch/friends" ,FetchFriendsHandler.GetFriendsHandler) 
         auth.POST("/search/notfriends", searchNotFriendHandler.SearchNotFriendHandler)
         auth.POST("/friend/request", friendRequestHandler.FriendRequestHandler)
     }
+
+    wsGroup := r.Group("/api/session")
+    wsGroup.Use(middleware.SessionMiddleware())
+    wsGroup.GET("/websocket", wsHandler.WebSocketHandler)
 
 	fmt.Println("http://localhost:8080 で起動中")
 
