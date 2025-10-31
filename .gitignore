@@ -1,0 +1,25 @@
+# Node.js / Frontend
+node_modules/
+.next/
+dist/
+build/
+.env
+/backend/.env
+
+# Go
+bin/
+*.exe
+*.out
+
+# Docker
+*.log
+*.pid
+*.sock
+
+# System
+.DS_Store
+.idea/
+.vscode/
+
+# Dependency folders
+vendor/

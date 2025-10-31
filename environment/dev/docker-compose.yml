@@ -1,0 +1,53 @@
+services:
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile
+    container_name: realtime_backend
+    env_file:
+      - ./../../environment/dev/.env
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../../backend:/app/backend
+    depends_on:
+      - redis
+      - mysql
+
+  frontend:
+    build:
+      context: ../../frontend
+      dockerfile: Dockerfile
+    container_name: realtime_frontend
+    env_file:
+      - ./../../environment/dev/.env
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../frontend:/app
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+
+  redis:
+    image: redis:7
+    container_name: realtime_redis
+    ports:
+      - "6379:6379"
+
+  mysql:
+    image: mysql:8
+    container_name: realtime_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: meetingdb
+      MYSQL_USER: meeting
+      MYSQL_PASSWORD: meetingpass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysqldata:/var/lib/mysql
+
+volumes:
+  mysqldata:
