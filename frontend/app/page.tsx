@@ -2,14 +2,13 @@
 
 import { useState,useEffect } from "react";
 import { useUserStore } from "../lib/store/userStore";
-import { fetchConnectedUsers } from "./utils/fetchConnectedUsers";
 import Notification from "./component/home/Notification/notification";
 import AuthDashboard from "./component/authentification/dashboard";
+import ConnectedUsers from "./component/home/connectedUser";
 import GuestDashboard from "./component/authentification/guestDashBoard";
 
 export default function HomePage() {
   const [isLogin, setIsLogin] = useState(true);
-  const [connectedUsers, setConnectedUsers] = useState<number[]>([]);
   const { user } = useUserStore();
   const token = user.token;
   const userID = user.id;
@@ -26,12 +25,6 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-      (async () => {
-        const data = await fetchConnectedUsers();
-        if (data?.connected_users) {
-          setConnectedUsers(data.connected_users);
-        }
-      })();
     if (!token) {
       setIsLogin(false);
       return;
@@ -48,9 +41,15 @@ export default function HomePage() {
       <h1>こんにちは{userID}さん！</h1>
       <Notification userID={userID}/>
       {
-        isLogin ? <AuthDashboard/> : <GuestDashboard/>
+        isLogin ? (
+          <>
+            <AuthDashboard/>
+            <ConnectedUsers/>
+          </> 
+        ): (
+          <GuestDashboard/>
+        )
       }
-      <h2>接続中のユーザー一覧{connectedUsers}</h2>
     </div>
   );
 }

@@ -39,28 +39,16 @@ func WebSocketHandler(c *gin.Context) {
         return
     }
 
-    GlobalHub.Register(userID, conn)
+    client := &Client{
+		UserID:   userID,
+		Conn: conn,
+		Send: make(chan interface{}, 64), // バッファ推奨
+		Stop: make(chan struct{}),
+		Hub:  GlobalHub,
+	}
 
-    // Ping/Pong設定と開始
-    SetupPingPong(conn, 60)
-    stopCh := make(chan struct{})
-    go StartPingLoop(conn, 30, stopCh)
+	GlobalHub.register <- client
 
-    // 受信ループ
-    for {
-        _, msg, err := conn.ReadMessage()
-        if err != nil {
-            fmt.Printf("❌ connection closed for user %d: %v\n", userID, err)
-            close(stopCh)
-            GlobalHub.Unregister(userID)
-            break
-        }
-
-        if string(msg) == "notification_ack" {
-            conn.WriteJSON(map[string]string{
-                "type":    "ack_confirmed",
-                "message": "notification received successfully",
-            })
-        }
-    }
+	go client.writePump()
+	go client.readPump()
 }
