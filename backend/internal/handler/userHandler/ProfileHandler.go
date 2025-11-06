@@ -6,17 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProfileHandler struct {
+type GetMeHandler struct {
 	//Repoという変数にはuserrepository型のポインタを格納するという定義
 	Repo *repository.UserRepository
 }
 
-func NewProfileHandler(repo *repository.UserRepository) *ProfileHandler {
-	return &ProfileHandler{Repo: repo}
+func NewGetMeHandler(repo *repository.UserRepository) *GetMeHandler {
+	return &GetMeHandler{Repo: repo}
 }
 
 //メソッドレシーバーは関数に引数として渡すこともできる
-func (h *ProfileHandler) ProfileHandler(c *gin.Context) {
+func (h *GetMeHandler) GetMeHandler(c *gin.Context) {
 	// 認証されたユーザーの情報を取得
 	userEmail, exists := c.Get("email")
 	if !exists {
@@ -28,7 +28,7 @@ func (h *ProfileHandler) ProfileHandler(c *gin.Context) {
 	//h.Repoはuserrepository型のポインタ
 	user, err := h.Repo.GetUserByEmail(userEmail.(string))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve user profile"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve user getMe"})
 		return
 	}
 

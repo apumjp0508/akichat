@@ -52,7 +52,7 @@ func SetupRouter() *gin.Engine {
 
     registerHandler := UserHandler.NewRegisterHandler(userRepo)
     loginHandler := UserHandler.NewLoginHandler(userRepo)
-    profileHandler := UserHandler.NewProfileHandler(userRepo)
+    getMeHandler := UserHandler.NewGetMeHandler(userRepo)
 
     FetchFriendsHandler := friendsHandler.NewFriendShipHandler(friendsRepo)
     searchNotFriendHandler := friendsHandler.NewSearchNotFriendHandler(userRepo)
@@ -67,10 +67,11 @@ func SetupRouter() *gin.Engine {
     {
         auth.POST("/websocket/init", sessionHandler.SetupSessionHandler)
         auth.GET("/connected-users", wsHandler.GetConnectedUsersHandler)
-        auth.GET("/profile", profileHandler.ProfileHandler)
+        auth.GET("/getMe", getMeHandler.GetMeHandler)
         auth.GET("/fetch/friends" ,FetchFriendsHandler.GetFriendsHandler) 
         auth.POST("/search/notfriends", searchNotFriendHandler.SearchNotFriendHandler)
         auth.POST("/friend/request", friendRequestHandler.FriendRequestHandler)
+        auth.POST("/friend/request/approve", FetchFriendsHandler.ApproveRequestHandler)
     }
 
     wsGroup := r.Group("/api/session")

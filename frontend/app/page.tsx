@@ -2,10 +2,10 @@
 
 import { useState,useEffect } from "react";
 import { useUserStore } from "../lib/store/userStore";
-import Notification from "./component/home/Notification/notification";
-import AuthDashboard from "./component/authentification/dashboard";
+import Notification from "./component/home/approveNotification";
+import AuthDashboard from "./component/AuthDashboard/page";
 import ConnectedUsers from "./component/home/connectedUser";
-import GuestDashboard from "./component/authentification/guestDashBoard";
+import GuestDashboard from "./component/GuestDashboard/page";
 
 export default function HomePage() {
   const [isLogin, setIsLogin] = useState(true);
@@ -25,6 +25,7 @@ export default function HomePage() {
   };
 
   useEffect(() => {
+    
     if (!token) {
       setIsLogin(false);
       return;
@@ -38,18 +39,20 @@ export default function HomePage() {
   }, [token]);
   return (
     <div>
-      <h1>こんにちは{userID}さん！</h1>
-      <Notification userID={userID}/>
-      {
-        isLogin ? (
-          <>
-            <AuthDashboard/>
-            <ConnectedUsers/>
-          </> 
-        ): (
-          <GuestDashboard/>
-        )
-      }
+      <main className="flex min-h-screen items-center justify-center bg-gradient-to-r from-blue-500 to-pink-400 text-white text-4xl font-bold">
+        <Notification userID={userID}/>
+        {
+          isLogin ? (
+            <>
+              <h1 className="text-4xl font-bold">こんにちは{userID}さん！</h1>
+              <AuthDashboard/>
+              <ConnectedUsers/>
+            </> 
+          ): (
+            <GuestDashboard/>
+          )
+        }
+      </main>
     </div>
   );
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUserStore } from "../../../../lib/store/userStore";
-import { postWithAuth } from "../../../utils/PostWithAuth";
-import { useReceiveNotification } from "../../../utils/RecieveNotification";
+import { useUserStore } from "../../../lib/store/userStore";
+import { postWithAuth } from "../../utils/PostWithAuth";
+import { useReceiveNotification } from "../../utils/RecieveNotification";
 
 export default function NotificationListener({ userID }: { userID: number }) {
   const [notifications, setNotifications] = useState<Record<number, string>>({});
@@ -12,35 +12,31 @@ export default function NotificationListener({ userID }: { userID: number }) {
 
   useReceiveNotification(userID, token, (msg) => {
     if (msg.type === "friend_request") {
-      const reqUserId = Number(msg.requestUserID);
+      const reqUserID = Number(msg.requestUserID);
 
       // 🔹 既存の通知オブジェクトに追加
       setNotifications((prev) => ({
         ...prev,
-        [reqUserId]: msg.message,
+        [reqUserID]: msg.message,
       }));
 
       alert(`🔔 ${msg.message}`);
     }
   });
 
-  const ApproveRequest = async (requestUserId,userID) =>{
+  const ApproveRequest = async (requestUserID,userID) =>{
     try {
-      const res = await postWithAuth("http://localhost:8080/api/friend/request/approve",{
-        requestUserId: requestUserId,
-        userID: userID
+      const data = await postWithAuth("http://localhost:8080/api/friend/request/approve",{
+        requestUserID: Number(requestUserID),
+        userID: Number(userID),
       })
 
-      if (res.ok) {
-          const data = await res.json();
-          console.log("フレンド申請成功:", data);
-          alert("フレンド申請を送信しました。");
-        } else {
-          const errData = await res.json();
-          console.error("フレンド申請失敗:", errData);
-          alert(`フレンド申請に失敗: ${errData.error}`);
-        }
+      console.log("フレンド承認成功:", data);
+      alert("フレンド申請を承認しました。");
+      
       } catch (error) {
+        console.log("Approving friend request from user ID:", requestUserID);
+        console.log("Current user ID:", userID);
         console.error("Error during friend request:", error);
         alert("フレンド申請中にエラーが発生しました。");
       }
@@ -49,17 +45,17 @@ export default function NotificationListener({ userID }: { userID: number }) {
   return (
     <div className="fixed bottom-4 right-4 space-y-2">
       {/* 🔹 Object.entries() で [key, value] に分けてループ */}
-      {Object.entries(notifications).map(([reqId, text]) => (
+      {Object.entries(notifications).map(([reqID, text]) => (
         <div
-          key={reqId}
+          key={reqID}
           className="bg-blue-500 text-white px-4 py-2 rounded shadow-md animate-bounce"
         >
           <p>
-            <strong>From User ID:</strong> {reqId}
+            <strong>From User ID:</strong> {reqID}
           </p>
           <button
             type="submit"
-            onClick={() => ApproveRequest(reqId, userID)}
+            onClick={() => ApproveRequest(reqID, userID)}
           >
             リクエスト承認
           </button>

@@ -1,23 +1,26 @@
 package friendsHandler
 
 import (
+	"fmt"
 	"net/http"
 	"github.com/gin-gonic/gin"
 )
 
-func (h *FriendShipHandler) ApproveRequest(c *gin.Context) {
+func (h *FriendShipHandler) ApproveRequestHandler(c *gin.Context) {
 	var req struct {
-		RequestUserId uint `json:"requestUserId"`
-		UserId        uint `json:"userID"`
+		RequestUserID uint `json:"requestUserID"`
+		UserID        uint `json:"userID"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
+		fmt.Println("invalid request body")
 		return
 	}
 
-	if err := h.FriendShipRepo.AddFriend(req.RequestUserId, req.UserId); err != nil {
+	if err := h.FriendShipRepo.AddFriend(req.RequestUserID, req.UserID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "フレンド追加に失敗しました"})
+		fmt.Printf("failed to add friend: %v", err)
 		return
 	}
 

@@ -12,6 +12,16 @@ func JWTMiddleware() gin.HandlerFunc {
     return func(c *gin.Context) {
         var tokenStr string
 
+        cookies := c.Request.Cookies()
+        if len(cookies) == 0 {
+            fmt.Println("⚠️ Cookie が1つも送信されていません")
+        } else {
+            fmt.Println("🍪 受け取ったCookie一覧:")
+            for _, cookie := range cookies {
+                fmt.Printf("  name=%s, value=%s\n", cookie.Name, cookie.Value)
+            }
+        }
+
         authHeader := c.GetHeader("Authorization")
        if authHeader != "" {
             tokenStr = strings.TrimPrefix(authHeader, "Bearer ")

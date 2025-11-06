@@ -47,7 +47,7 @@ func (h *LoginHandler) LoginHandler(c *gin.Context) {
 	}
 
 	c.SetCookie(
-	"refreshToken",       // クッキー名
+	"AkichatRefreshToken",       // クッキー名
     refreshToken,         // 保存する値
     60*60*24*7,           // 有効期限（例: 7日間）
     "/",                  // パス

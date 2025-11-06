@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useUserStore } from "../../lib/store/userStore";
-import { startWebSocket } from "../utils/StartWebSocket";
+import { useUserStore } from "../../../lib/store/userStore";
+import { startWebSocket } from "../../utils/StartWebSocket";
 
 export default function Login() {
     const [user, setUser] = useState("");

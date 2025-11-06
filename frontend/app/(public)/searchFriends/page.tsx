@@ -1,6 +1,6 @@
 "use client";
 
-import FetchFriendPage from "../component/Friends/fetchFriends";
+import FetchFriendPage from "../../component/Friends/fetchFriends";
 
 export default function SearchFriendsPage() {
   return (

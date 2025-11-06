@@ -16,5 +16,6 @@ export async function postWithAuth<T = any>(url: string, payload: any): Promise<
     throw new Error(errorData.error || "エラーが発生しました");
   }
 
+  console.log("Response status:", res.status);
   return res.json();
 }

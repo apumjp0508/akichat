@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { postWithAuth } from "../utils/PostWithAuth";
+import { postWithAuth } from "../../utils/PostWithAuth";
 
 export default function SearchNotFriendPage() {
   const [keyword, setKeyword] = useState("");

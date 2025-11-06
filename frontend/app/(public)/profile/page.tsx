@@ -1,7 +1,7 @@
 "use client"
-import { useUserStore } from "../../lib/store/userStore";
+import { useUserStore } from "../../../lib/store/userStore";
 
-export default function Profile() {
+export default function GetMe() {
   const { user } = useUserStore();
   const username = user.name;
   const email = user.email;
