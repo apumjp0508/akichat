@@ -22,7 +22,7 @@ export default function ChatStartButton() {
             <div className="w-full max-w-md mx-auto bg-white rounded-2xl shadow-md p-6">
                 <h1 className="text-2xl font-bold text-center text-pink-600 mb-6">🎉 友達リスト</h1>
 
-                {friends.length === 0 ? (
+                {!friends || friends.length === 0 ? (
                     <p className="text-center text-gray-500">友達はまだいません。</p>
                 ) : (
                     <ul className="space-y-4">

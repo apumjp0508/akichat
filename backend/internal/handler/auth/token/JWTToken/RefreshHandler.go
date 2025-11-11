@@ -33,8 +33,6 @@ func RefreshHandler(c *gin.Context) {
     rc := token.Claims.(*RefreshClaims)
     // 追加チェック：ユーザー存在、リフレッシュトークンが有効か（DBチェックなど）
 
-    fmt.Println("refresh token valid for user:", rc.UserID)
-
     // 新しいトークンペアを発行
     newAccess, newRefresh, err := GenerateTokens(rc.UserID, "") 
     if err != nil {
