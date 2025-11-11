@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { startWebSocket } from "./StartWebSocket";
+import { startWebSocket } from "./useStartWebSocket";
 
 export function useReceiveNotification(
   userID: number,

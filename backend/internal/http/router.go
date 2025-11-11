@@ -65,6 +65,10 @@ func SetupRouter() *gin.Engine {
     auth:= r.Group("/api")
     auth.Use(middleware.JWTMiddleware())
     {
+        auth.GET("/auth/verify", func(c *gin.Context) {
+            fmt.Println("認証チェック中")
+            c.JSON(200, gin.H{"message": "認証チェックOK"})
+        })
         auth.POST("/websocket/init", sessionHandler.SetupSessionHandler)
         auth.GET("/connected-users", wsHandler.GetConnectedUsersHandler)
         auth.GET("/getMe", getMeHandler.GetMeHandler)

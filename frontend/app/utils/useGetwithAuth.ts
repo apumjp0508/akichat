@@ -1,4 +1,4 @@
-import { fetchWithAuth } from "./fetchWithAuth";
+import { fetchWithAuth } from "./useFetchWithAuth";
 
 export async function getWithAuth<T = any>(url: string): Promise<T> {
   const res = await fetchWithAuth(url, {

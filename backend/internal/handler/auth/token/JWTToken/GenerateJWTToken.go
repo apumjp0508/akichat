@@ -2,12 +2,12 @@ package JWTHandler;
 
 import (
     "time"
-    "os"
+    "akichat/backend/internal/config"
 
     "github.com/golang-jwt/jwt/v5"
 )
 
-var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+var jwtSecret = []byte(config.Load().JwtSecret)
 
 type AccessClaims struct {
     UserID uint   `json:"userID"`

@@ -1,6 +1,7 @@
 package UserHandler
 
 import (
+	"fmt"
 	"net/http"
 	"akichat/backend/internal/repository"
 	"github.com/gin-gonic/gin"
@@ -18,23 +19,27 @@ func NewGetMeHandler(repo *repository.UserRepository) *GetMeHandler {
 //メソッドレシーバーは関数に引数として渡すこともできる
 func (h *GetMeHandler) GetMeHandler(c *gin.Context) {
 	// 認証されたユーザーの情報を取得
-	userEmail, exists := c.Get("email")
+	userID, exists := c.Get("userID")
+	fmt.Println("GetMeHandler: userID from context =", userID)
 	if !exists {
+		fmt.Println("userID not found in context")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
 	// ユーザー情報をデータベースから取得
 	//h.Repoはuserrepository型のポインタ
-	user, err := h.Repo.GetUserByEmail(userEmail.(string))
+	user, err := h.Repo.GetUserByUserID(userID.(uint))
 	if err != nil {
+		fmt.Println("Error retrieving user:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve user getMe"})
 		return
 	}
+	fmt.Println("GetMeHandler: retrieved user =", user)
 
 	c.JSON(http.StatusOK, gin.H{
+		"id":    user.ID,
 		"email": user.Email,
 		"name":  user.Username,
-		// 他の必要なユーザー情報を追加
 	})
 }

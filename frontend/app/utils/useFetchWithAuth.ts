@@ -1,8 +1,8 @@
 import { useUserStore } from "../../lib/store/userStore";
-import { refreshTokenIfNeeded } from "./refreshTokenIfNeeded";
+import { refreshTokenIfNeeded } from "./useRefreshToken";
 
 export async function fetchWithAuth(input: RequestInfo, init: RequestInit = {}) {
-  const token = useUserStore.getState().user.token || localStorage.getItem("token");
+  const token = useUserStore.getState().user.token;
   const headers = new Headers(init.headers || {});
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
@@ -13,10 +13,10 @@ export async function fetchWithAuth(input: RequestInfo, init: RequestInit = {}) 
   const refreshed = await refreshTokenIfNeeded();
   if (!refreshed) {
     useUserStore.getState().clearUser();
-    throw new Error("Session expired");
+    return new Response(null, { status: 401, statusText: "Unauthorized" });
   }
 
-  const newToken = useUserStore.getState().user.token || localStorage.getItem("token");
+  const newToken = useUserStore.getState().user.token;
   if (newToken) headers.set("Authorization", `Bearer ${newToken}`);
 
   // 再試行

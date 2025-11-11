@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchFriends } from "../../utils/fetchFriends";
+import { fetchFriends } from "../../utils/useFetchFriends";
 
 export default function FetchFriendPage() {
   const [friends, setFriends] = useState<Array<{ ID: number; username: string }>>([]);

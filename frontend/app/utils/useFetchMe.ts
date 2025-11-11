@@ -1,4 +1,4 @@
-import { getWithAuth } from "./GetwithAuth";
+import { getWithAuth } from "./useGetwithAuth";
 
 export async function fetchMe() {
   try {

@@ -35,7 +35,6 @@ func (h *LoginHandler) LoginHandler(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("Authenticated User:", user)
 
 	accessToken, refreshToken, err := JWTHandler.GenerateTokens(user.ID, user.Email)
 	if err != nil {
@@ -46,14 +45,15 @@ func (h *LoginHandler) LoginHandler(c *gin.Context) {
 		fmt.Println("Generated Token:", accessToken)
 	}
 
+	// 統一したクッキー名で保存
 	c.SetCookie(
-	"AkichatRefreshToken",       // クッキー名
-    refreshToken,         // 保存する値
-    60*60*24*7,           // 有効期限（例: 7日間）
-    "/",                  // パス
-    "localhost",          // ドメイン（本番環境では自ドメインを指定）
-    false,                 // Secure（HTTPSのみにする）
-    true,                 // HttpOnly（JSからアクセス不可）
+		"refreshToken",     // クッキー名（統一）
+		refreshToken,       // 保存する値
+		60*60*24*7,         // 有効期限（例: 7日間）
+		"/",                // パス
+		"localhost",        // ドメイン
+		false,              // Secure（HTTPSのみにする）
+		true,               // HttpOnly（JSからアクセス不可）
 	)
 
 

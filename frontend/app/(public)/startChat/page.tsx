@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import FetchFriends  from "../../component/Friends/fetchFriends";
+import ConnectedUsers from "../../component/home/connectedUser";
 import { useState } from "react";
-import { fetchFriends } from "../../utils/fetchFriends";
+import { fetchFriends } from "../../utils/useFetchFriends";
 import { useRouter } from "next/navigation";
 
 export default function ChatStartButton() {
@@ -42,6 +42,8 @@ export default function ChatStartButton() {
                     ))}
                     </ul>
                 )}
+
+                <ConnectedUsers/>
             </div>
         </main>
     );

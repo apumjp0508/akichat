@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useUserStore } from "../../../lib/store/userStore";
-import { postWithAuth } from "../../utils/PostWithAuth";
-import { useReceiveNotification } from "../../utils/RecieveNotification";
+import { postWithAuth } from "../../utils/usePostWithAuth";
+import { useReceiveNotification } from "../../utils/useRecieveNotification";
 
 export default function NotificationListener({ userID }: { userID: number }) {
   const [notifications, setNotifications] = useState<Record<number, string>>({});

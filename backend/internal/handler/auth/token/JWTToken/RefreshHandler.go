@@ -11,18 +11,9 @@ import (
 )
 
 func RefreshHandler(c *gin.Context) {
-    // Cookie から refreshToken を取得
-    cookies := c.Request.Cookies()
-    if len(cookies) == 0 {
-        fmt.Println("⚠️ Cookie が1つも送信されていません")
-    } else {
-        fmt.Println("🍪 受け取ったCookie一覧:")
-        for _, cookie := range cookies {
-            fmt.Printf("  name=%s, value=%s\n", cookie.Name, cookie.Value)
-        }
-    }
 
     refreshToken, err := c.Cookie("refreshToken")
+    fmt.Println("Refreshing token with refresh token:", refreshToken)
     if err != nil {
         fmt.Println("refresh token not provided")
         c.JSON(http.StatusUnauthorized, gin.H{"error": "refresh token not provided"})
@@ -42,6 +33,8 @@ func RefreshHandler(c *gin.Context) {
     rc := token.Claims.(*RefreshClaims)
     // 追加チェック：ユーザー存在、リフレッシュトークンが有効か（DBチェックなど）
 
+    fmt.Println("refresh token valid for user:", rc.UserID)
+
     // 新しいトークンペアを発行
     newAccess, newRefresh, err := GenerateTokens(rc.UserID, "") 
     if err != nil {
@@ -51,7 +44,7 @@ func RefreshHandler(c *gin.Context) {
     }
 
     // 新しい refreshToken を Cookie にセットし直す（トークンローテーション）
-    c.SetCookie("refreshToken", newRefresh, int(7*24*time.Hour.Seconds()), "/", "", false, true)
+    c.SetCookie("refreshToken", newRefresh, int(7*24*time.Hour.Seconds()), "/", "localhost", false, true)
 
     c.JSON(http.StatusOK, gin.H{
         "accessToken": newAccess,

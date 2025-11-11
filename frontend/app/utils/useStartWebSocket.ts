@@ -1,4 +1,4 @@
-import { fetchWithAuth } from "./fetchWithAuth";
+import { fetchWithAuth } from "./useFetchWithAuth";
 
 export const startWebSocket = async(userID: number,token: string) => {
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useUserStore } from "../../../lib/store/userStore";
-import { startWebSocket } from "../../utils/StartWebSocket";
+import { startWebSocket } from "../../utils/useStartWebSocket";
 
 export default function Login() {
     const [user, setUser] = useState("");
