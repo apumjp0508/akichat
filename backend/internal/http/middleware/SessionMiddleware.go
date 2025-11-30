@@ -15,7 +15,6 @@ func SessionMiddleware() gin.HandlerFunc {
 			fmt.Printf("セッションが無効")
 			return
 		}
-		fmt.Printf("セッションは有効")
 		c.Next()
 	}
 }

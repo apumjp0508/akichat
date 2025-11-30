@@ -47,7 +47,7 @@ func Load() *Config {
 
     cfg := &Config{
         Port:            getEnv("PORT", "8080"),
-        CorsOrigins:     split(getEnv("CORS_ORIGINS", "http://localhost:3000")),
+        CorsOrigins:     split(getEnv("CORS_ORIGINS", "http://localhost:3000,https://172.20.10.2:3001")),
         CorsMethods:     split(getEnv("CORS_METHODS", "GET,POST,PUT,DELETE")),
         CorsHeaders:     split(getEnv("CORS_HEADERS", "Origin,Content-Type,Authorization")),
         CorsExpose:      split(getEnv("CORS_EXPOSE", "Content-Length")),

@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -19,21 +20,6 @@ type Client struct {
 	Send   chan interface{}
 	Stop chan struct{}
 	Hub  *Hub
-}
-
-func (c *Client) Run() {
-	defer func() {
-		c.Conn.Close()
-	}()
-
-	//rangeはchのときに使える構文、一回chに書き込むとループが終了する
-	for msg := range c.Send {
-		err := c.Conn.WriteJSON(msg)
-		if err != nil {
-			fmt.Printf("❌ Failed to write to user %d: %v\n", c.UserID, err)
-			break
-		}
-	}
 }
 
 func (c *Client) writePump() {
@@ -88,6 +74,62 @@ func (c *Client) readPump() {
 			// Close/Ping/Pongタイムアウト等はここに入ってくる
 			// 例: websocket: close 1001 (going away)
 			return
+		}
+
+		// WebRTC シグナリングのJSONメッセージ受付
+		type inboundSignal struct {
+			Type      string          `json:"type"`
+			To        uint            `json:"to"`
+			SDP       json.RawMessage `json:"sdp,omitempty"`
+			Candidate json.RawMessage `json:"candidate,omitempty"`
+		}
+		var m inboundSignal
+		//json.UnmarshalはJSONをパースして構造体に格納する関数
+		if err := json.Unmarshal(msg, &m); err == nil && m.Type != "" {
+			switch m.Type {
+			case "webrtc_offer", "webrtc_answer":
+				payload := map[string]interface{}{
+					"type": m.Type,
+					"from": c.UserID,
+					"sdp":  m.SDP,
+				}
+				fmt.Println("webrtc_offer or webrtc_answer:", payload)
+				if err := c.Hub.SendTo(m.To, payload); err != nil {
+					select {
+					case c.Send <- map[string]interface{}{
+						"type":         "webrtc_error",
+						"reason":       "user_offline",
+						"to":           m.To,
+						"originalType": m.Type,
+					}:
+					case <-c.Stop:
+						return
+					}
+				}
+				continue
+			case "webrtc_ice":
+				payload := map[string]interface{}{
+					"type":      m.Type,
+					"from":      c.UserID,
+					"candidate": m.Candidate,
+				}
+				fmt.Println("webrtc_ice:", payload)
+				if err := c.Hub.SendTo(m.To, payload); err != nil {
+					select {
+					case c.Send <- map[string]interface{}{
+						"type":         "webrtc_error",
+						"reason":       "user_offline",
+						"to":           m.To,
+						"originalType": m.Type,
+					}:
+					case <-c.Stop:
+						return
+					}
+				}
+				continue
+			default:
+				// 未知タイプは無視
+			}
 		}
 
 		// 任意：ACKなどのアプリメッセージをここで処理

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useUserStore } from "../../../lib/store/userStore";
+import { API_BASE } from "../../utils/apiBase";
 
 export default function Register() {
   const [user, setUser] = useState("");
@@ -12,7 +13,7 @@ export default function Register() {
     e.preventDefault();
 
     try{
-      const res = await fetch("http://localhost:8080/api/register", {
+      const res = await fetch(`${API_BASE}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

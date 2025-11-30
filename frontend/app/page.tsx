@@ -5,7 +5,7 @@ import { useUserStore } from "../lib/store/userStore";
 import Notification from "./component/home/approveNotification";
 import AuthDashboard from "./component/AuthDashboard/page";
 import GuestDashboard from "./component/GuestDashboard/page";
-import { checkCookie } from "./utils/useCheckCookie";
+import { checkCookie } from "./utils/checkCookie";
 
 export default function HomePage() {
   const [isChecking, setIsChecking] = useState(true);

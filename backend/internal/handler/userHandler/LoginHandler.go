@@ -51,7 +51,7 @@ func (h *LoginHandler) LoginHandler(c *gin.Context) {
 		refreshToken,       // 保存する値
 		60*60*24*7,         // 有効期限（例: 7日間）
 		"/",                // パス
-		"localhost",        // ドメイン
+		"172.20.10.2",        // ドメイン
 		false,              // Secure（HTTPSのみにする）
 		true,               // HttpOnly（JSからアクセス不可）
 	)

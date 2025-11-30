@@ -71,3 +71,19 @@ func (h *Hub) NotifyUser(requestUserID, userID uint, message string) error {
 		return fmt.Errorf("user %d already closed", userID)
 	}
 }
+
+// 任意のペイロードを宛先ユーザーに送信する汎用メソッド
+//ペイロード（payload）＝実際に送りたい内容（チャット本文や通知内容など）
+// writePump が c.Send を受け取り実送信するため、ここではチャネルに投入するだけでよい
+func (h *Hub) SendTo(userID uint, payload interface{}) error {
+	c, ok := h.clients[userID]
+	if !ok {
+		return fmt.Errorf("user %d is not connected", userID)
+	}
+	select {
+	case c.Send <- payload:
+		return nil
+	case <-c.Stop:
+		return fmt.Errorf("user %d already closed", userID)
+	}
+}

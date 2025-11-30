@@ -46,7 +46,6 @@ func JWTMiddleware() gin.HandlerFunc {
             return
         }
         if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-            fmt.Printf("claims: %+v\n", claims)
             c.Set("email", claims["email"])
             // userID を float64 → uint に変換してセット
             if idFloat, ok := claims["userID"].(float64); ok {

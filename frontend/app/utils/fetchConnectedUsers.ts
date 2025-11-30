@@ -1,8 +1,9 @@
-import { getWithAuth } from "./useGetwithAuth";
+import { getWithAuth } from "./getwithAuth";
+import { API_BASE } from "./apiBase";
 
 export async function fetchConnectedUsers() {
   try {
-    const data = await getWithAuth("http://localhost:8080/api/connected-users");
+    const data = await getWithAuth(`${API_BASE}/api/connected-users`);
 
     return data;
   } catch (error) {

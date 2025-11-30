@@ -1,9 +1,10 @@
-import { fetchWithAuth } from "./useFetchWithAuth";
-import { fetchMe } from "./useFetchMe";
+import { fetchWithAuth } from "./fetchWithAuth";
+import { fetchMe } from "./fetchMe";
+import { API_BASE } from "./apiBase";
 
 export async function checkCookie(): Promise<{ loggedIn: boolean; message: string; id: number; email: string; name: string }> {
   try {
-    const res = await fetchWithAuth("http://localhost:8080/api/auth/verify", {
+    const res = await fetchWithAuth(`${API_BASE}/api/auth/verify`, {
       method: "GET",
       credentials: "include",
     });

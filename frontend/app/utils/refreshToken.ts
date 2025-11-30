@@ -1,4 +1,5 @@
 import { useUserStore } from "../../lib/store/userStore";
+import { API_BASE } from "./apiBase";
 
 let refreshPromise: Promise<boolean> | null = null;
 
@@ -7,7 +8,7 @@ export async function refreshTokenIfNeeded(): Promise<boolean> {
 
   refreshPromise = (async () => {
     try {
-      const r = await fetch("http://localhost:8080/api/auth/refresh", {
+      const r = await fetch(`${API_BASE}/api/auth/refresh`, {
         method: "POST",
         credentials: "include",
       });

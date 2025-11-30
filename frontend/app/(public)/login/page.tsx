@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useUserStore } from "../../../lib/store/userStore";
-import { startWebSocket } from "../../utils/useStartWebSocket";
+import { startWebSocket } from "../../utils/startWebSocket";
+import { API_BASE } from "../../utils/apiBase";
 
 export default function Login() {
     const [user, setUser] = useState("");
@@ -13,7 +14,7 @@ export default function Login() {
         e.preventDefault();
 
         try {
-            const res = await fetch("http://localhost:8080/api/login", {
+            const res = await fetch(`${API_BASE}/api/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include", // クッキーを含める

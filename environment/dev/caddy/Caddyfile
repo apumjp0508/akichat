@@ -1,0 +1,16 @@
+:3001 {
+    tls /certs/172.20.10.2.pem /certs/172.20.10.2-key.pem
+
+    @frontend not path /api* /api/session/websocket
+    handle @frontend {
+        reverse_proxy realtime_frontend:3000
+    }
+
+    handle_path /api/* {
+        reverse_proxy realtime_backend:8080
+    }
+
+    handle /api/session/websocket {
+        reverse_proxy realtime_backend:8080
+    }
+}

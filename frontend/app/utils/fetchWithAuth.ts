@@ -1,5 +1,5 @@
 import { useUserStore } from "../../lib/store/userStore";
-import { refreshTokenIfNeeded } from "./useRefreshToken";
+import { refreshTokenIfNeeded } from "./refreshToken";
 
 export async function fetchWithAuth(input: RequestInfo, init: RequestInit = {}) {
   const token = useUserStore.getState().user.token;

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { postWithAuth } from "../../utils/usePostWithAuth";
+import { postWithAuth } from "../../utils/postWithAuth";
+import { API_BASE } from "../../utils/apiBase";
 
 export default function SearchNotFriendPage() {
   const [keyword, setKeyword] = useState("");
@@ -11,7 +12,7 @@ export default function SearchNotFriendPage() {
     e.preventDefault();
 
     try {
-      const data = await postWithAuth("http://localhost:8080/api/search/notfriends",{
+      const data = await postWithAuth(`${API_BASE}/api/search/notfriends`,{
         keyword,
       });
         console.log("検索成功:", data);
@@ -24,7 +25,7 @@ export default function SearchNotFriendPage() {
 
   const FriendRequest = async (userID: number) => {
     try {
-      const data = await postWithAuth("http://localhost:8080/api/friend/request",{
+      const data = await postWithAuth(`${API_BASE}/api/friend/request`,{
         to_user_id: userID ,
       });
       } catch (error) {

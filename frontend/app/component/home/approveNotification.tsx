@@ -2,31 +2,72 @@
 
 import { useState } from "react";
 import { useUserStore } from "../../../lib/store/userStore";
-import { postWithAuth } from "../../utils/usePostWithAuth";
-import { useReceiveNotification } from "../../utils/useRecieveNotification";
+import { postWithAuth } from "../../utils/postWithAuth";
+import { API_BASE } from "../../utils/apiBase";
+import { useReceiveNotification } from "../../hook/useRecieveNotification";
+import { acceptCall } from "../../utils/startChatOffer";
+import { handleRemoteAnswer, applyRemoteIce } from "../../utils/callSession";
 
 export default function NotificationListener({ userID }: { userID: number }) {
   const [notifications, setNotifications] = useState<Record<number, string>>({});
   const { user } = useUserStore();
   const token = user.token;
+  const peerByUser = new Map<number, RTCPeerConnection>();
 
-  useReceiveNotification(userID, token, (msg) => {
-    if (msg.type === "friend_request") {
-      const reqUserID = Number(msg.requestUserID);
+  useReceiveNotification(
+    userID,
+    token,
+    (msg) => {
+      if (msg.type === "friend_request") {
+        const reqUserID = Number(msg.requestUserID);
 
-      // 🔹 既存の通知オブジェクトに追加
-      setNotifications((prev) => ({
-        ...prev,
-        [reqUserID]: msg.message,
-      }));
+        // 🔹 既存の通知オブジェクトに追加
+        setNotifications((prev) => ({
+          ...prev,
+          [reqUserID]: msg.message,
+        }));
 
-      alert(`🔔 ${msg.message}`);
+        alert(`🔔 ${msg.message}`);
+      }
+    },
+    {
+      // オファー受信: 承諾でアンサーを返す
+      onOffer: async (ws, { from, sdp }) => {
+        try {
+          const accept = window.confirm(`📞 User ${from} からの通話リクエスト。受けますか？`);
+          if (!accept) return;
+          // 受信用 PeerConnection を作成し、アンサー送信までをユーティリティに委譲
+          const pc = await acceptCall(ws, from, sdp);
+          peerByUser.set(from, pc);
+        } catch (e) {
+          console.error("onOffer handling failed:", e);
+          alert("通話接続中にエラーが発生しました。");
+        }
+      },
+      // 呼び出し側: アンサーを適用
+      onAnswer: async (_ws, { from, sdp }) => {
+        try {
+          await handleRemoteAnswer(from, sdp);
+        } catch (e) {
+          console.error("apply remote answer failed:", e);
+        }
+      },
+      // 相手のICE候補を適用（統一関数へ委譲）
+      onIce: async (_ws, { from, candidate }) => {
+        try {
+          // Mapがある場合はMapを、なければ発信側（単一セッション）に適用
+          const pc = peerByUser.get(from);
+          await applyRemoteIce(from, candidate, pc ? peerByUser : undefined);
+        } catch (e) {
+          console.error("addIceCandidate failed:", e);
+        }
+      },
     }
-  });
+  );
 
   const ApproveRequest = async (requestUserID,userID) =>{
     try {
-      const data = await postWithAuth("http://localhost:8080/api/friend/request/approve",{
+      const data = await postWithAuth(`${API_BASE}/api/friend/request/approve`,{
         requestUserID: Number(requestUserID),
         userID: Number(userID),
       })

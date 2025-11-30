@@ -22,13 +22,25 @@ services:
     env_file:
       - ./../../environment/dev/.env
     ports:
-      - "3000:3000"
+      - "3000:3000"   # ← ★ ここを絶対に 3000 に戻す
     volumes:
       - ../../frontend:/app
+      - ./caddy/certs:/app/certs
     stdin_open: true
     tty: true
     depends_on:
       - backend
+
+  caddy:
+    image: caddy:latest
+    container_name: realtime_caddy
+    ports:
+      - "3001:3001"   # ← ★ スマホはここにアクセス
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/certs:/certs
+    depends_on:
+      - frontend
 
   redis:
     image: redis:7

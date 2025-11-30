@@ -45,7 +45,7 @@ func (h *RegisterHandler) RegisterHandler(c *gin.Context) {
 		refreshToken,         // 保存する値
 		60*60*24*7,           // 有効期限（例: 7日間）
 		"/",                  // パス
-		"localhost",          // ドメイン（本番環境では自ドメインを指定）
+		"172.20.10.2",          // ドメイン（本番環境では自ドメインを指定）
 		false,                 // Secure（HTTPSのみにする）
 		true,                 // HttpOnly（JSからアクセス不可）
 	)

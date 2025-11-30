@@ -26,7 +26,5 @@ func SetupSessionHandler(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("session: %d",session)
-
 	c.JSON(http.StatusOK, gin.H{"message": "WebSocket allowed"})
 }
