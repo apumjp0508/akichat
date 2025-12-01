@@ -1,18 +1,17 @@
 package friendsHandler
 
 import (
-	"fmt"
 	"net/http"
-	"akichat/backend/internal/repository"
+	svc "akichat/backend/internal/service/friends"
 	"github.com/gin-gonic/gin"
 )
 
 type FriendRequestHandler struct {
-	FriendRequestRepo *repository.FriendRequestRepository
+	FriendsService svc.Service
 }
 
-func NewFriendRequestHandler(friendRequestRepo *repository.FriendRequestRepository) *FriendRequestHandler {
-	return &FriendRequestHandler{FriendRequestRepo: friendRequestRepo}
+func NewFriendRequestHandler(service svc.Service) *FriendRequestHandler {
+	return &FriendRequestHandler{FriendsService: service}
 }
 
 func (h *FriendRequestHandler) FriendRequestHandler(c *gin.Context) {
@@ -24,9 +23,6 @@ func (h *FriendRequestHandler) FriendRequestHandler(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
-	// 型と値のログ出力
-	fmt.Printf("userID value: %v, type: %T\n", rawUserID, rawUserID)
-	
 	userID, ok := rawUserID.(uint)
 	if !ok {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Invalid user ID type"})
@@ -43,16 +39,9 @@ func (h *FriendRequestHandler) FriendRequestHandler(c *gin.Context) {
 		return
 	}
 
-	fmt.Printf("Creating friend request from user %d to user %d\n", userID, req.FriendID)
-	if err := h.FriendRequestRepo.CreateFriendRequest(userID, req.FriendID); err != nil {
+	if err := h.FriendsService.RequestFriend(userID, req.FriendID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "リクエストが正常に処理されないかすでにフレンド申請を送っています"})
 		return
-	}
-
-	if err := h.NotifyFriendRequest(userID,req.FriendID); err != nil {
-		fmt.Println("通知エラー",err)
-	}else{
-		fmt.Println("通知成功")
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Friend request sent successfully"})

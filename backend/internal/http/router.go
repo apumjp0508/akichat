@@ -8,9 +8,8 @@ import (
     friendsHandler "akichat/backend/internal/handler/friendsHandler"
     jwtTokenHandler "akichat/backend/internal/handler/auth/token/JWTToken"
     sessionHandler "akichat/backend/internal/handler/auth/session"
-    "akichat/backend/internal/repository"
-    "akichat/backend/internal/db"
     "akichat/backend/internal/config"
+    "akichat/backend/internal/app"
     "github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
     "github.com/gin-contrib/sessions"
@@ -20,10 +19,13 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	database, err := db.InitDB()
+    // DIコンテナ初期化
+    container, err := app.NewContainer()
     if err != nil {
-        fmt.Printf("db接続失敗")
+        fmt.Printf("container 初期化失敗: %v", err)
     }
+    // Hubのランループを起動（未起動だと register/unregister が詰まる）
+    go container.Hub.Run()
 
     cfg := config.Load()
 
@@ -46,17 +48,14 @@ func SetupRouter() *gin.Engine {
         AllowCredentials: cfg.CorsCredentials,
     }))
 
-    userRepo := repository.NewUserRepository(database)
-    friendsRepo := repository.NewFriendShipRepository(database)
-    friendRequestRepo := repository.NewFriendRequestRepository(database)
+    // Handlers
+    registerHandler := UserHandler.NewRegisterHandler(container.AuthService)
+    loginHandler := UserHandler.NewLoginHandler(container.AuthService)
+    getMeHandler := UserHandler.NewGetMeHandler(container.UserRepo)
 
-    registerHandler := UserHandler.NewRegisterHandler(userRepo)
-    loginHandler := UserHandler.NewLoginHandler(userRepo)
-    getMeHandler := UserHandler.NewGetMeHandler(userRepo)
-
-    FetchFriendsHandler := friendsHandler.NewFriendShipHandler(friendsRepo)
-    searchNotFriendHandler := friendsHandler.NewSearchNotFriendHandler(userRepo)
-    friendRequestHandler := friendsHandler.NewFriendRequestHandler(friendRequestRepo)
+    FetchFriendsHandler := friendsHandler.NewFriendShipHandler(container.FriendsService)
+    searchNotFriendHandler := friendsHandler.NewSearchNotFriendHandler(container.UserRepo)
+    friendRequestHandler := friendsHandler.NewFriendRequestHandler(container.FriendsService)
 
     r.POST("/api/register", registerHandler.RegisterHandler)
     r.POST("/api/login", loginHandler.LoginHandler)
@@ -80,7 +79,9 @@ func SetupRouter() *gin.Engine {
 
     wsGroup := r.Group("/api/session")
     wsGroup.Use(middleware.SessionMiddleware())
-    wsGroup.GET("/websocket", wsHandler.WebSocketHandler)
+    // DI版のWebSocketHandlerを使用
+    wsH := wsHandler.NewWSHandler(container.Hub, container.SignalingService)
+    wsGroup.GET("/websocket", wsH.Handle)
 
 	fmt.Println("http://localhost:8080 で起動中")
 

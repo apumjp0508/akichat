@@ -2,16 +2,16 @@ package friendsHandler
 
 import (
 	"net/http"
-	"akichat/backend/internal/repository"
+	svc "akichat/backend/internal/service/friends"
 	"github.com/gin-gonic/gin"
 )
 
 type FriendShipHandler struct {
-	FriendShipRepo *repository.FriendShipRepository
+	FriendsService svc.Service
 }
 
-func NewFriendShipHandler(friendShipRepo *repository.FriendShipRepository) *FriendShipHandler {
-	return &FriendShipHandler{FriendShipRepo: friendShipRepo}
+func NewFriendShipHandler(service svc.Service) *FriendShipHandler {
+	return &FriendShipHandler{FriendsService: service}
 }
 
 func (h *FriendShipHandler) GetFriendsHandler(c *gin.Context) {
@@ -22,7 +22,7 @@ func (h *FriendShipHandler) GetFriendsHandler(c *gin.Context) {
 		return
 	}
 
-	friends, err := h.FriendShipRepo.GetFriendsByUserID(userIDInterface.(uint))
+	friends, err := h.FriendsService.ListFriends(userIDInterface.(uint))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not retrieve friends"})
 		return

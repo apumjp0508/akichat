@@ -1,11 +1,11 @@
 package websocket
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
 	"github.com/gorilla/websocket"
+	signaling "akichat/backend/internal/service/signaling"
 )
 
 const (
@@ -20,6 +20,7 @@ type Client struct {
 	Send   chan interface{}
 	Stop chan struct{}
 	Hub  *Hub
+	Signaling *signaling.Service
 }
 
 func (c *Client) writePump() {
@@ -76,59 +77,22 @@ func (c *Client) readPump() {
 			return
 		}
 
-		// WebRTC シグナリングのJSONメッセージ受付
-		type inboundSignal struct {
-			Type      string          `json:"type"`
-			To        uint            `json:"to"`
-			SDP       json.RawMessage `json:"sdp,omitempty"`
-			Candidate json.RawMessage `json:"candidate,omitempty"`
-		}
-		var m inboundSignal
-		//json.UnmarshalはJSONをパースして構造体に格納する関数
-		if err := json.Unmarshal(msg, &m); err == nil && m.Type != "" {
-			switch m.Type {
-			case "webrtc_offer", "webrtc_answer":
-				payload := map[string]interface{}{
-					"type": m.Type,
-					"from": c.UserID,
-					"sdp":  m.SDP,
-				}
-				fmt.Println("webrtc_offer or webrtc_answer:", payload)
-				if err := c.Hub.SendTo(m.To, payload); err != nil {
+		// 1) シグナリング処理をサービスに委譲
+		if c.Signaling != nil {
+			if err := c.Signaling.Handle(c.UserID, msg); err != nil {
+				// 既存の webrtc_error レスポンスに合わせて通知
+				if de, ok := err.(*signaling.DeliveryError); ok {
 					select {
 					case c.Send <- map[string]interface{}{
 						"type":         "webrtc_error",
 						"reason":       "user_offline",
-						"to":           m.To,
-						"originalType": m.Type,
+						"to":           de.To,
+						"originalType": de.OriginalType,
 					}:
 					case <-c.Stop:
 						return
 					}
 				}
-				continue
-			case "webrtc_ice":
-				payload := map[string]interface{}{
-					"type":      m.Type,
-					"from":      c.UserID,
-					"candidate": m.Candidate,
-				}
-				fmt.Println("webrtc_ice:", payload)
-				if err := c.Hub.SendTo(m.To, payload); err != nil {
-					select {
-					case c.Send <- map[string]interface{}{
-						"type":         "webrtc_error",
-						"reason":       "user_offline",
-						"to":           m.To,
-						"originalType": m.Type,
-					}:
-					case <-c.Stop:
-						return
-					}
-				}
-				continue
-			default:
-				// 未知タイプは無視
 			}
 		}
 

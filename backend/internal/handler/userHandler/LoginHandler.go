@@ -1,19 +1,17 @@
 package UserHandler
 
 import (
-	"fmt"
 	"net/http"
-	"akichat/backend/internal/repository"
-	"akichat/backend/internal/handler/auth/token/JWTToken"
+	authsvc "akichat/backend/internal/service/auth"
 	"github.com/gin-gonic/gin"
 )
 
 type LoginHandler struct {
-	Repo *repository.UserRepository
+	AuthService authsvc.Service
 }
 
-func NewLoginHandler(repo *repository.UserRepository) *LoginHandler {
-	return &LoginHandler{Repo: repo}
+func NewLoginHandler(authService authsvc.Service) *LoginHandler {
+	return &LoginHandler{AuthService: authService}
 }
 
 func (h *LoginHandler) LoginHandler(c *gin.Context) {
@@ -27,28 +25,19 @@ func (h *LoginHandler) LoginHandler(c *gin.Context) {
 		return
 	}
 
-
-    // ここでユーザー認証を行う（例: データベースと照合）
-    user, err := h.Repo.GetUserByEmail(loginData.Email)
+	out, err := h.AuthService.Login(authsvc.LoginInput{
+		Email: loginData.Email,
+		Password: loginData.Password,
+	})
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
 		return
 	}
 
-
-	accessToken, refreshToken, err := JWTHandler.GenerateTokens(user.ID, user.Email)
-	if err != nil {
-		fmt.Println("Error generating token:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate token"})
-		return
-	}else {	
-		fmt.Println("Generated Token:", accessToken)
-	}
-
 	// 統一したクッキー名で保存
 	c.SetCookie(
 		"refreshToken",     // クッキー名（統一）
-		refreshToken,       // 保存する値
+		out.RefreshToken,   // 保存する値
 		60*60*24*7,         // 有効期限（例: 7日間）
 		"/",                // パス
 		"172.20.10.2",        // ドメイン
@@ -56,8 +45,13 @@ func (h *LoginHandler) LoginHandler(c *gin.Context) {
 		true,               // HttpOnly（JSからアクセス不可）
 	)
 
-
-	//未使用の変数を一時的に対比するために使用している
-    _ = user
-	c.JSON(http.StatusOK, gin.H{"message": "Login successful", "accessToken": accessToken, "userID":user.ID, "username":user.Username, "password":user.Password})
+	// パスワードは返却しない。互換性のため username/name/email を付与
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login successful",
+		"accessToken": out.AccessToken,
+		"userID": out.UserID,
+		"username": out.UserName,
+		"name": out.UserName,
+		"email": out.UserEmail,
+	})
 }

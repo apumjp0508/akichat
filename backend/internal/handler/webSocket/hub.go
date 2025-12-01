@@ -2,6 +2,7 @@ package websocket
 
 import (
 	"fmt"
+	"akichat/backend/internal/realtime"
 )
 
 type Hub struct {
@@ -12,6 +13,9 @@ type Hub struct {
 }
 
 var GlobalHub = NewHub()
+
+// Hub が realtime.Gateway を実装していることをコンパイル時に保証
+var _ realtime.Gateway = (*Hub)(nil)
 
 func NewHub() *Hub {
 	return &Hub{
