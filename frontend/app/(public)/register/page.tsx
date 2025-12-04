@@ -25,6 +25,8 @@ export default function Register() {
 
       const data = await res.json();
 
+      console.log(data);
+
       if (res.ok) {
         alert("登録成功！");
         setUser("");

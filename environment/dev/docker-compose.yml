@@ -9,7 +9,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ../../backend:/app/backend
+      - ../../backend:/app
     depends_on:
       - redis
       - mysql

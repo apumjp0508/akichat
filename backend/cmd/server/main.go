@@ -13,6 +13,6 @@ func main() {
     go websocket.GlobalHub.Run()
     cfg := config.Load()
     r := router.SetupRouter()
-    log.Println("http://localhost:" + cfg.Port + " で起動中")
-    _ = r.Run(":" + cfg.Port)
+    log.Println("http://0.0.0.0:" + cfg.Port + " で起動中です")
+    _ = r.Run("0.0.0.0:" + cfg.Port)
 }

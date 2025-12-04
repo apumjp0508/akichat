@@ -6,7 +6,7 @@
         reverse_proxy realtime_frontend:3000
     }
 
-    handle_path /api/* {
+    handle /api/* {
         reverse_proxy realtime_backend:8080
     }
 

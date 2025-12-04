@@ -1,6 +1,7 @@
 package UserHandler
 
 import (
+	"fmt"
 	"net/http"
 	authsvc "akichat/backend/internal/service/auth"
 	"akichat/backend/internal/model"
@@ -16,9 +17,11 @@ func NewRegisterHandler(authService authsvc.Service) *RegisterHandler {
 }
 
 func (h *RegisterHandler) RegisterHandler(c *gin.Context) {
+	fmt.Println("RegisterHandler: RegisterHandler called")
 	var user model.User
 
 	if err := c.ShouldBindJSON(&user); err != nil {
+		fmt.Println("RegisterHandler: Invalid request:", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
@@ -29,6 +32,7 @@ func (h *RegisterHandler) RegisterHandler(c *gin.Context) {
 		Password: user.Password,
 	})
 	if err != nil {
+		fmt.Println("RegisterHandler: Failed to register user:", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
 		return
 	}
@@ -43,6 +47,7 @@ func (h *RegisterHandler) RegisterHandler(c *gin.Context) {
 		true,                 // HttpOnly（JSからアクセス不可）
 	)
 
+	fmt.Println("RegisterHandler: User registered successfully")
 	c.JSON(http.StatusOK, gin.H{
 		"message": "User registered successfully",
 		"accessToken": out.AccessToken, 
